@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif: Perencanaan & Pengendalian Produksi (25 Soal)</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 5px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .instructions {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            color: #555;
+        }
+        .question-item {
+            background: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .question-item h3 {
+            margin-top: 0;
+            color: #343a40;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .options label {
+            display: block;
+            background: #fff;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .options label:hover {
+            background-color: #e9ecef;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        #submit-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 30px;
+        }
+        #submit-button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        .correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+        }
+        .incorrect {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+        }
+        .correct-answer-feedback {
+            font-weight: bold;
+            color: #155724;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Kuis Perencanaan & Pengendalian Produksi</h1>
+    <p class="instructions">Jawablah 25 soal pilihan ganda di bawah ini. Soal dan pilihan jawaban diacak secara otomatis. Setiap jawaban benar bernilai **2 poin**.</p>
+    
+    <div id="quiz-container">
+        </div>
+
+    <button id="submit-button" onclick="submitQuiz()">Selesai & Lihat Hasil</button>
+    
+    <div id="results"></div>
+    <p class="instructions" style="margin-top: 25px;">Untuk Soal Isian (Bagian B) silakan dinilai secara manual. Benar: 10 poin, Hampir Benar: 5 poin.</p>
+</div>
+
+<script>
+    // Data Soal dan Jawaban (Revisi dengan 5 Opsi A-E)
+    const originalQuestions = [
+        {
+            q: "Saat menentukan jenis dan jumlah produk, hal pertama yang paling logis dilakukan adalah…",
+            options: [
+                { text: "Menebak-nebak tren pasar", isCorrect: false },
+                { text: "Mengikuti produk teman", isCorrect: false },
+                { text: "Menganalisis kebutuhan konsumen", isCorrect: true },
+                { text: "Memilih yang paling murah dibuat", isCorrect: false },
+                { text: "Menunggu wangsit", isCorrect: false }
+            ]
+        },
+        {
+            q: "Jika desain produk tidak sesuai kebutuhan konsumen, dampak utamanya adalah…",
+            options: [
+                { text: "Produk cepat habis", isCorrect: false },
+                { text: "Produk tidak diminati", isCorrect: true },
+                { text: "Produk makin mahal", isCorrect: false },
+                { text: "Produk makin berat", isCorrect: false },
+                { text: "Produk jadi viral", isCorrect: false }
+            ]
+        },
+        {
+            q: "Dalam menyusun proses kerja pembuatan prototipe, hal yang paling penting adalah…",
+            options: [
+                { text: "Urutan kerja jelas", isCorrect: true },
+                { text: "Banyak gambar hiasan", isCorrect: false },
+                { text: "Warna cat menarik", isCorrect: false },
+                { text: "Judulnya panjang", isCorrect: false },
+                { text: "Bonus stiker", isCorrect: false }
+            ]
+        },
+        {
+            q: "Menghitung biaya produksi bertujuan untuk…",
+            options: [
+                { text: "Meningkatkan berat produk", isCorrect: false },
+                { text: "Mengetahui modal yang dibutuhkan", isCorrect: true },
+                { text: "Membuat desain lebih lucu", isCorrect: false },
+                { text: "Menambah durasi pembuatan", isCorrect: false },
+                { text: "Membuat produk berbau wangi", isCorrect: false }
+            ]
+        },
+        {
+            q: "Jadwal kerja produksi dibuat agar…",
+            options: [
+                { text: "Semua pekerja bisa tidur siang", isCorrect: false },
+                { text: "Kegiatan produksi tetap teratur", isCorrect: true },
+                { text: "Mesin tidak bosan", isCorrect: false },
+                { text: "Konsumen bingung", isCorrect: false },
+                { text: "Produk makin besar", isCorrect: false }
+            ]
+        },
+        {
+            q: "Strategi produksi diperlukan untuk…",
+            options: [
+                { text: "Membuat kerja jadi ribet", isCorrect: false },
+                { text: "Menentukan cara terbaik menghasilkan produk", isCorrect: true },
+                { text: "Menghabiskan bahan", isCorrect: false },
+                { text: "Mengelabui pelanggan", isCorrect: false },
+                { text: "Membuat harga jadi tidak masuk akal", isCorrect: false }
+            ]
+        },
+        {
+            q: "Standar spesifikasi produk dibuat untuk memastikan…",
+            options: [
+                { text: "Produk selalu sama kualitasnya", isCorrect: true },
+                { text: "Produk cepat rusak", isCorrect: false },
+                { text: "Pelanggan makin marah", isCorrect: false },
+                { text: "Ongkos produksi naik", isCorrect: false },
+                { text: "Tahapan kerja hilang", isCorrect: false }
+            ]
+        },
+        {
+            q: "Pengendalian mutu dilakukan saat…",
+            options: [
+                { text: "Produk sudah viral", isCorrect: false },
+                { text: "Produk sedang dibuat", isCorrect: true },
+                { text: "Produk jadi dan ingin dipamerkan", isCorrect: false },
+                { text: "Hanya ketika guru datang", isCorrect: false },
+                { text: "Kalau ingat", isCorrect: false }
+            ]
+        },
+        {
+            q: "Contoh kegiatan pengendalian mutu adalah…",
+            options: [
+                { text: "Mengabaikan cacat kecil", isCorrect: false },
+                { text: "Menimbang ulang bahan", isCorrect: true },
+                { text: "Mencoret-coret kemasan", isCorrect: false },
+                { text: "Menghapus catatan produksi", isCorrect: false },
+                { text: "Membiarkan mesin rusak", isCorrect: false }
+            ]
+        },
+        {
+            q: "Kemasan dibuat dengan tujuan…",
+            options: [
+                { text: "Agar produk terlihat menarik dan aman", isCorrect: true },
+                { text: "Menghabiskan kertas", isCorrect: false },
+                { text: "Membuat pelanggan bingung", isCorrect: false },
+                { text: "Menaikkan berat barang", isCorrect: false },
+                { text: "Menyulitkan pembeli untuk membuka", isCorrect: false }
+            ]
+        },
+        {
+            q: "Label pada produk berfungsi untuk…",
+            options: [
+                { text: "Hiasan saja", isCorrect: false },
+                { text: "Menjelaskan isi dan informasi produk", isCorrect: true },
+                { text: "Meningkatkan berat produk", isCorrect: false },
+                { text: "Mengurangi harga", isCorrect: false },
+                { text: "Membuat pelanggan bingung", isCorrect: false }
+            ]
+        },
+        {
+            q: "Jika kemasan mudah rusak, maka…",
+            options: [
+                { text: "Produk aman", isCorrect: false },
+                { text: "Produk berisiko rusak dan tidak menarik", isCorrect: true },
+                { text: "Produk lebih cepat terjual", isCorrect: false },
+                { text: "Harga naik drastis", isCorrect: false },
+                { text: "Distributor senang", isCorrect: false }
+            ]
+        },
+        {
+            q: "Contoh strategi distribusi yang efektif adalah…",
+            options: [
+                { text: "Mengirim barang tanpa alamat", isCorrect: false },
+                { text: "Menyalurkan produk ke tempat yang sesuai target", isCorrect: true },
+                { text: "Mengirim produk saat tengah malam", isCorrect: false },
+                { text: "Menunggu pelanggan datang sendiri", isCorrect: false },
+                { text: "Menggunakan karung bekas", isCorrect: false }
+            ]
+        },
+        {
+            q: "Layanan keluhan pelanggan bertujuan untuk…",
+            options: [
+                { text: "Mendebat pelanggan", isCorrect: false },
+                { text: "Memperbaiki kualitas produk dan layanan", isCorrect: true },
+                { text: "Mengabaikan masalah", isCorrect: false },
+                { text: "Menurunkan harga", isCorrect: false },
+                { text: "Membuat pelanggan takut", isCorrect: false }
+            ]
+        },
+        {
+            q: "Jika pelanggan mengeluh produknya cacat, tindakan terbaik adalah…",
+            options: [
+                { text: "Menyalahkan pelanggan", isCorrect: false },
+                { text: "Mengganti atau memperbaiki produk", isCorrect: true },
+                { text: "Kabur", isCorrect: false },
+                { text: "Memblokir pelanggan", isCorrect: false },
+                { text: "Pura-pura tidak baca", isCorrect: false }
+            ]
+        },
+        {
+            q: "Prototipe dibuat untuk…",
+            options: [
+                { text: "Contoh awal sebelum produksi massal", isCorrect: true },
+                { text: "Menghabiskan waktu", isCorrect: false },
+                { text: "Menghias meja", isCorrect: false },
+                { text: "Dibuat sekali lalu dilupakan", isCorrect: false },
+                { text: "Dijadikan pajangan", isCorrect: false }
+            ]
+        },
+        {
+            q: "Bahan yang dipilih untuk produksi harus…",
+            options: [
+                { text: "Mudah rusak", isCorrect: false },
+                { text: "Berkualitas dan sesuai fungsi", isCorrect: true },
+                { text: "Sulit dicari", isCorrect: false },
+                { text: "Paling mahal", isCorrect: false },
+                { text: "Paling tidak jelas", isCorrect: false }
+            ]
+        },
+        {
+            q: "Dalam produksi, “efisiensi” berarti…",
+            options: [
+                { text: "Boros bahan", isCorrect: false },
+                { text: "Mengerjakan dengan cepat dan tepat", isCorrect: true },
+                { text: "Pekerja dipaksa lembur", isCorrect: false },
+                { text: "Mengurangi alat", isCorrect: false },
+                { text: "Menghilangkan prosedur", isCorrect: false }
+            ]
+        },
+        {
+            q: "Jika jadwal kerja tidak dipatuhi, maka…",
+            options: [
+                { text: "Produksi bisa terlambat", isCorrect: true },
+                { text: "Produksi jadi lebih cepat", isCorrect: false },
+                { text: "Barang jadi lebih kuat", isCorrect: false },
+                { text: "Biaya turun drastis", isCorrect: false },
+                { text: "Tidak terjadi apa-apa", isCorrect: false }
+            ]
+        },
+        {
+            q: "Pengemasan produk harus sesuai ukuran karena…",
+            options: [
+                { text: "Agar produk tidak rusak dan terlihat rapi", isCorrect: true },
+                { text: "Agar berat bertambah banyak", isCorrect: false },
+                { text: "Agar pelanggan marah", isCorrect: false },
+                { text: "Agar hemat bahan", isCorrect: false },
+                { text: "Agar isi produk tidak jelas", isCorrect: false }
+            ]
+        },
+        {
+            q: "Dalam merancang desain kemasan, hal penting adalah…",
+            options: [
+                { text: "Warna yang sesuai identitas produk", isCorrect: true },
+                { text: "Warna acak", isCorrect: false },
+                { text: "Menggunakan font yang susah dibaca", isCorrect: false },
+                { text: "Menghilangkan informasi penting", isCorrect: false },
+                { text: "Menambah gambar tidak relevan", isCorrect: false }
+            ]
+        },
+        {
+            q: "Distribusi yang tidak teratur mengakibatkan…",
+            options: [
+                { text: "Produk mudah sampai", isCorrect: false },
+                { text: "Produk terlambat tiba", isCorrect: true },
+                { text: "Pelanggan makin puas", isCorrect: false },
+                { text: "Biaya semakin kecil", isCorrect: false },
+                { text: "Stok aman terkendali", isCorrect: false }
+            ]
+        },
+        {
+            q: "Keluhan pelanggan sebaiknya dicatat agar…",
+            options: [
+                { text: "Bisa dipertimbangkan untuk perbaikan", isCorrect: true },
+                { text: "Bisa diabaikan nanti", isCorrect: false },
+                { text: "Bisa dipamerkan", isCorrect: false },
+                { text: "Bisa dijadikan alasan menunda kerja", isCorrect: false },
+                { text: "Bisa disembunyikan", isCorrect: false }
+            ]
+        },
+        {
+            q: "Menetapkan jumlah produk harus mempertimbangkan…",
+            options: [
+                { text: "Mood pembuat", isCorrect: false },
+                { text: "Permintaan pasar", isCorrect: true },
+                { text: "Cuaca hari itu", isCorrect: false },
+                { text: "Warna favorit pembuat", isCorrect: false },
+                { text: "Jumlah teman sekelas", isCorrect: false }
+            ]
+        },
+        {
+            q: "Jika desain produk buruk tetapi produksi tetap dilakukan, risikonya adalah…",
+            options: [
+                { text: "Penjualan tinggi", isCorrect: false },
+                { text: "Produk kurang diminati", isCorrect: true },
+                { text: "Harga naik", isCorrect: false },
+                { text: "Distributor makin senang", isCorrect: false },
+                { text: "Produk jadi makin kuat", isCorrect: false }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    const resultsDiv = document.getElementById('results');
+    const optionLabels = ['A', 'B', 'C', 'D', 'E']; // Label untuk 5 pilihan jawaban
+    
+    /**
+     * Fungsi untuk mengacak array (Fisher-Yates Shuffle)
+     * @param {Array} array
+     */
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    /**
+     * Fungsi untuk merender kuis ke HTML
+     */
+    function renderQuiz() {
+        // 1. Acak urutan soal
+        shuffleArray(originalQuestions);
+
+        let output = '';
+        originalQuestions.forEach((question, index) => {
+            // 2. Acak urutan pilihan jawaban
+            shuffleArray(question.options);
+
+            const questionNumber = index + 1;
+            const name = `question${questionNumber}`;
+
+            let optionsHtml = '<div class="options">';
+            question.options.forEach((option, optionIndex) => {
+                const optionLabel = optionLabels[optionIndex];
+                optionsHtml += `
+                    <label for="${name}_${optionIndex}" data-is-correct="${option.isCorrect}">
+                        <input type="radio" id="${name}_${optionIndex}" name="${name}" value="${option.text}" required>
+                        <span style="font-weight: bold;">${optionLabel}.</span> ${option.text}
+                    </label>
+                `;
+            });
+            optionsHtml += '</div>';
+
+            output += `
+                <div class="question-item" data-question-number="${questionNumber}">
+                    <h3>${questionNumber}. ${question.q}</h3>
+                    ${optionsHtml}
+                </div>
+            `;
+        });
+
+        quizContainer.innerHTML = output;
+    }
+
+    /**
+     * Fungsi untuk menghitung dan menampilkan hasil kuis
+     */
+    function submitQuiz() {
+        let score = 0;
+        let totalQuestions = originalQuestions.length;
+        const submitButton = document.getElementById('submit-button');
+
+        // Nonaktifkan tombol submit setelah selesai
+        submitButton.disabled = true;
+
+        originalQuestions.forEach((question, index) => {
+            const questionNumber = index + 1;
+            const name = `question${questionNumber}`;
+            const questionElement = document.querySelector(`.question-item[data-question-number="${questionNumber}"]`);
+            const selectedOption = document.querySelector(`input[name="${name}"]:checked`);
+            
+            // Temukan jawaban yang benar (terlepas dari pilihan user)
+            const correctAnswer = question.options.find(opt => opt.isCorrect);
+
+            // Dapatkan semua elemen label untuk feedback visual
+            const optionLabels = questionElement.querySelectorAll('.options label');
+
+            optionLabels.forEach(label => {
+                const labelInput = label.querySelector('input');
+                const isCorrectOption = label.dataset.isCorrect === 'true';
+
+                // Tandai jawaban yang benar dengan warna hijau
+                if (isCorrectOption) {
+                    label.classList.add('correct');
+                }
+
+                // Cek apakah user memilih jawaban ini
+                if (selectedOption && selectedOption.value === labelInput.value) {
+                    if (isCorrectOption) {
+                        score += 2; // Tambah 2 poin untuk jawaban benar
+                    } else {
+                        // Tandai jawaban salah yang dipilih user dengan warna merah
+                        label.classList.add('incorrect');
+                        // Tambahkan feedback untuk jawaban yang benar
+                        const feedback = document.createElement('div');
+                        feedback.classList.add('correct-answer-feedback');
+                        feedback.innerHTML = `Jawaban Anda salah. Jawaban yang benar: **${correctAnswer.text}**`;
+                        questionElement.appendChild(feedback);
+                    }
+                }
+            });
+
+            // Jika tidak ada jawaban yang dipilih
+            if (!selectedOption) {
+                const feedback = document.createElement('div');
+                feedback.classList.add('correct-answer-feedback');
+                feedback.innerHTML = `Anda tidak menjawab soal ini. Jawaban yang benar: **${correctAnswer.text}**`;
+                questionElement.appendChild(feedback);
+            }
+        });
+
+        const maxScore = totalQuestions * 2;
+        resultsDiv.innerHTML = `
+            🎉 **Hasil Kuis Anda:** ${score} / ${maxScore} Poin
+            <br>
+            Anda menjawab **${score / 2}** dari **${totalQuestions}** soal dengan benar.
+        `;
+        resultsDiv.style.display = 'block';
+    }
+
+    // Panggil fungsi renderQuiz saat halaman dimuat
+    window.onload = renderQuiz;
+</script>
+
+</body>
+</html>
